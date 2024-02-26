@@ -3,6 +3,7 @@ let capturewidth = 850;
 let captureheight = 480;
 
 let emotions = ["neutral", "happy", "sad", "angry", "fearful", "disgusted", "surprised"];
+let emotionsName = ["Neutral 😐", "Happy 😊", "Sad 😒", "Angry 😡", "Fearful 😥", "Disgusted 🤨", "Surprised 😱"];
 
 let faceapi;
 let detections = [];
@@ -66,10 +67,11 @@ function draw() {
             for (k = 0; k < emotions.length; k++) {
 
                 var thisemotion = emotions[k];
+                var thisemotionname = emotionsName[k];
 
                 var thisemotionlevel = detections[i].expressions[thisemotion];
 
-                text(thisemotion, 40, 28 + 30 * k);
+                text(thisemotionname, 40, 28 + 30 * k);
 
                 rect(40, 30 + 30 * k, thisemotionlevel * 100, 10);
 
