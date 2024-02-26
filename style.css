@@ -1,8 +1,15 @@
 html, body {
     margin: 0;
     padding: 0;
+    height: 100vh;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
   }
   canvas {
-    display: block;
+    border-radius: 10px;
+    border: 4px solid black;
   }
   

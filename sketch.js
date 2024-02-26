@@ -1,5 +1,5 @@
 let capture;
-let capturewidth = 640;
+let capturewidth = 850;
 let captureheight = 480;
 
 let emotions = ["neutral", "happy", "sad", "angry", "fearful", "disgusted", "surprised"];
@@ -39,7 +39,7 @@ function gotFaces(error, result) {
 function draw() {
 
     background(255);
-    image(capture, 0, 0, width, height);
+    image(capture, 210, 0, 640, height);
 
     capture.loadPixels();
 
@@ -50,7 +50,7 @@ function draw() {
             var points = detections[i].landmarks.positions;
 
             for (j = 0; j < points.length; j++) {
-                circle(points[j]._x, points[j]._y, 5);
+                circle(210+points[j]._x, points[j]._y, 5);
             }
 
             var neutralLevel = detections[i].expressions.neutral;
