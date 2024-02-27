@@ -1,84 +1,70 @@
-let capture;
-let capturewidth = 850;
-let captureheight = 480;
-
-let emotions = ["neutral", "happy", "sad", "angry", "fearful", "disgusted", "surprised"];
-let emotionsName = ["Neutral 😐", "Happy 😊", "Sad 😒", "Angry 😡", "Fearful 😥", "Disgusted 🤨", "Surprised 😱"];
-
+let video;
 let faceapi;
-let detections = [];
+let detections;
+
+let cocossd; // Replace with your desired object detection model
+
 
 function setup() {
-    createCanvas(capturewidth, captureheight);
+    createCanvas(640, 480); // Adjust dimensions as needed
+    video = createCapture(VIDEO);
+    video.size(640, 480);
+    video.hide(); // Hide the video element
 
-    capture = createCapture(VIDEO);
-    capture.position(0, 0);
-
-    capture.hide();
-
-    const faceOptions = { withLandmarks: true, withExpressions: true, withDescriptors: false };
-
-    faceapi = ml5.faceApi(capture, faceOptions, faceReady);
-
+    cocossd = loadModel('https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd/dist/uncompressed/mobilenet_v2/model.json');
+    faceapi = ml5.faceApi(video, {
+        withLandmarks: true, // For expression detection
+        withDescriptors: true, // Not strictly needed for this
+        withAgeAndGender: true
+    }, modelReady);
 }
 
-function faceReady() {
-    faceapi.detect(gotFaces);
+async function detectObjects() {
+    const predictions = await cocossd.detect(video);
+    draw(predictions);
+    setTimeout(detectObjects, 100); // Call again after 100ms for continuous detection
 }
 
-function gotFaces(error, result) {
-    if (error) {
-        console.log(error);
-        return
+function modelReady() {
+    console.log('Model loaded!');
+    detectFaces(); // Start detection
+}
+
+function detectFaces() {
+    faceapi.detect(gotResults);
+}
+
+function gotResults(err, results) {
+    if (err) {
+        console.error(err);
+        return;
     }
-    detections = result;
-    faceapi.detect(gotFaces);
-    // console.log(detections);
+    detections = results;
+    draw();
+    detectFaces(); // Keep detecting
 }
-
 
 function draw() {
+    image(video, 0, 0); // Draw the video
 
-    background(255);
-    image(capture, 210, 0, 640, height);
+    if (detections) {
+        for (let i = 0; i < detections.length; i++) {
+            const face = detections[i];
+            console.log(face)
 
-    capture.loadPixels();
+            // Draw a box around the face
+            noFill();
+            strokeWeight(3)
+            stroke(161, 95, 251);
+            rect(face.alignedRect._box._x, face.alignedRect._box._y, face.alignedRect._box._width, face.alignedRect._box._height);
 
-    push();
-    fill('green');
-    if (detections.length > 0) {
-        for (i = 0; i < detections.length; i++) {
-            var points = detections[i].landmarks.positions;
-
-            for (j = 0; j < points.length; j++) {
-                circle(210+points[j]._x, points[j]._y, 5);
-            }
-
-            var neutralLevel = detections[i].expressions.neutral;
-            var happyLevel = detections[i].expressions.happy;
-            var sadLevel = detections[i].expressions.sad;
-            var angryLevel = detections[i].expressions.angry;
-            var fearfulLevel = detections[i].expressions.fearful;
-            var disgustedLevel = detections[i].expressions.disgusted;
-            var surprisedLevel = detections[i].expressions.surprised;
-
-            push();
-
-            for (k = 0; k < emotions.length; k++) {
-
-                var thisemotion = emotions[k];
-                var thisemotionname = emotionsName[k];
-
-                var thisemotionlevel = detections[i].expressions[thisemotion];
-
-                text(thisemotionname, 40, 28 + 30 * k);
-
-                rect(40, 30 + 30 * k, thisemotionlevel * 100, 10);
-
-            }
-
+            // Display information
+            textSize(16);
+            textAlign(LEFT);
+            noStroke()
+            fill(161, 95, 251);
+            text(`Expression: ${face.expressions.asSortedArray()[0].expression}`, face.alignedRect._box._x, face.alignedRect._box._y - 20);
+            
         }
     }
-    pop();
-
 }
