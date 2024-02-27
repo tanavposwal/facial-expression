@@ -44,14 +44,17 @@ function gotResults(err, results) {
     detectFaces(); // Keep detecting
 }
 
+let tmp = 0
 function draw() {
     image(video, 0, 0); // Draw the video
 
     if (detections) {
         for (let i = 0; i < detections.length; i++) {
             const face = detections[i];
-            console.log(face)
-
+            if (tmp == 0) {
+                console.log(face)
+                tmp = 1
+            }
             // Draw a box around the face
             noFill();
             strokeWeight(3)
@@ -63,7 +66,9 @@ function draw() {
             textAlign(LEFT);
             noStroke()
             fill(161, 95, 251);
-            text(`Expression: ${face.expressions.asSortedArray()[0].expression}`, face.alignedRect._box._x, face.alignedRect._box._y - 20);
+            let expsn = face.expressions.asSortedArray()[0]
+            text(`Expression: ${expsn.expression}`, face.alignedRect._box._x, face.alignedRect._box._y - 20);
+            text(`Probability: ${Math.ceil(expsn.probability*10)}`, face.alignedRect._box._x, face.alignedRect._box._y - 5);
             
         }
     }
