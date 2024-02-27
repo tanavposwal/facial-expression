@@ -10,7 +10,7 @@ body {
   align-items: center;
   justify-content: center;
   font-family: sans-serif;
-  background-image: url("/blurr.jpg");
+  background-image: url("./public/blurr.jpg");
   background-position: center;
   background-size: cover;
 }
