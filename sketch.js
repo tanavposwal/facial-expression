@@ -2,27 +2,17 @@ let video;
 let faceapi;
 let detections;
 
-let cocossd; // Replace with your desired object detection model
-
-
 function setup() {
     createCanvas(640, 480); // Adjust dimensions as needed
     video = createCapture(VIDEO);
     video.size(640, 480);
     video.hide(); // Hide the video element
 
-    cocossd = loadModel('https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd/dist/uncompressed/mobilenet_v2/model.json');
     faceapi = ml5.faceApi(video, {
         withLandmarks: true, // For expression detection
         withDescriptors: true, // Not strictly needed for this
         withAgeAndGender: true
     }, modelReady);
-}
-
-async function detectObjects() {
-    const predictions = await cocossd.detect(video);
-    draw(predictions);
-    setTimeout(detectObjects, 100); // Call again after 100ms for continuous detection
 }
 
 function modelReady() {
@@ -44,17 +34,13 @@ function gotResults(err, results) {
     detectFaces(); // Keep detecting
 }
 
-let tmp = 0
 function draw() {
     image(video, 0, 0); // Draw the video
 
     if (detections) {
         for (let i = 0; i < detections.length; i++) {
             const face = detections[i];
-            if (tmp == 0) {
-                console.log(face)
-                tmp = 1
-            }
+            
             // Draw a box around the face
             noFill();
             strokeWeight(3)
